@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>碧蓝航线Wiki下载器</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f0f2f5;
+      color: #333;
+    }
+    h1 {
+      color: #1890ff;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #1890ff;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #40a9ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>碧蓝航线Wiki下载器</h1>
+    <p>应用正在启动中，请稍候...</p>
+    <p>如果长时间未响应，请尝试重启应用。</p>
+    <button onclick="window.location.reload()">刷新页面</button>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('静态页面已加载');
+    });
+  </script>
+</body>
+</html>
