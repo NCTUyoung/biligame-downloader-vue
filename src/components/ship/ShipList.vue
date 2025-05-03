@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useShipStore, ShipData } from '../../stores/ships'
+import { useGameParserStore, GameItemView } from '../../stores/gameParser'
 import { usePaginationStore } from '../../stores/pagination'
 import { useDetailImagesStore } from '../../stores/detailImages'
 import { ref, computed, watch } from 'vue'
 import { SearchOutlined } from '@ant-design/icons-vue'
 import ShipDetailImages from './ShipDetailImages.vue'
 
-const shipStore = useShipStore()
+const gameParserStore = useGameParserStore()
 const paginationStore = usePaginationStore()
 const detailStore = useDetailImagesStore()
 
@@ -29,7 +29,7 @@ function clearSearch() {
 const hoveredShip = ref<string | null>(null)
 
 // 查看舰船详情
-function viewShipDetails(ship: ShipData) {
+function viewShipDetails(ship: GameItemView) {
   detailStore.selectShipAndGetDetails(ship)
 }
 
@@ -56,7 +56,7 @@ function getRarityColor(rarity: string): string {
 // 计算结果信息
 const resultInfo = computed(() => {
   const total = paginationStore.filteredShips?.length || 0
-  const originalTotal = shipStore.ships.length
+  const originalTotal = gameParserStore.ships.length
 
   if (searchValue.value && total !== originalTotal) {
     return `找到 ${total} 个结果（共 ${originalTotal} 个）`
@@ -71,7 +71,7 @@ const hasFilteredShips = computed(() => {
 </script>
 
 <template>
-  <div v-if="shipStore.ships.length > 0">
+  <div v-if="gameParserStore.ships.length > 0">
     <a-row align="middle" style="margin-bottom: 16px">
       <!-- 搜索框 -->
       <a-col :xs="24" :sm="12" :md="14" :lg="16">

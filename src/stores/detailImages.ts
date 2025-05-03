@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useShipStore, ShipData } from './ships'
+import { useGameParserStore, GameItemView } from './gameParser'
 import { fetchShipDetailImages } from '../services/parser'
 import { message } from 'ant-design-vue'
 
 export const useDetailImagesStore = defineStore('detailImages', () => {
-  const shipStore = useShipStore()
+  const gameParserStore = useGameParserStore()
 
   // 当前选中的舰船
-  const selectedShip = ref<ShipData | null>(null)
+  const selectedShip = ref<GameItemView | null>(null)
 
   // 正在加载详情
   const isLoadingDetails = ref(false)
@@ -20,22 +20,23 @@ export const useDetailImagesStore = defineStore('detailImages', () => {
   const downloadingImages = ref<{[key: string]: boolean}>({})
 
   // 选择舰船并获取详情
-  async function selectShipAndGetDetails(ship: ShipData) {
+  async function selectShipAndGetDetails(ship: GameItemView) {
     selectedShip.value = ship
     showDetailModal.value = true
 
     if (!ship.detailFetched) {
       try {
         isLoadingDetails.value = true
-        const updatedShip = await fetchShipDetailImages(ship)
+        // 直接使用GameItemView类型，不需要再进行转换
+        const updatedShip = await fetchShipDetailImages(ship);
 
-        // 更新store中的舰船数据
-        const index = shipStore.ships.findIndex(s => s.sanitizedName === ship.sanitizedName)
-        if (index !== -1) {
-          const ships = [...shipStore.ships]
-          ships[index] = updatedShip
-          shipStore.setShips(ships)
-          selectedShip.value = updatedShip
+        // 将更新后的详情信息添加到当前选中的ship对象
+        if (selectedShip.value) {
+          selectedShip.value = {
+            ...selectedShip.value,
+            detailImages: updatedShip.detailImages,
+            detailFetched: updatedShip.detailFetched
+          };
         }
       } catch (error) {
         message.error(`获取${ship.name}详情图片失败`)
@@ -47,7 +48,7 @@ export const useDetailImagesStore = defineStore('detailImages', () => {
   }
 
   // 下载单张详情图片
-  async function downloadDetailImage(ship: ShipData, imageUrl: string, imageTitle: string) {
+  async function downloadDetailImage(ship: GameItemView, imageUrl: string, imageTitle: string) {
     if (downloadingImages.value[imageUrl]) {
       return
     }
@@ -82,7 +83,7 @@ export const useDetailImagesStore = defineStore('detailImages', () => {
   }
 
   // 下载所有详情图片
-  async function downloadAllDetailImages(ship: ShipData) {
+  async function downloadAllDetailImages(ship: GameItemView) {
     if (!ship.detailImages || ship.detailImages.length === 0) {
       message.warning(`${ship.name}没有详情图片`)
       return

@@ -1,19 +1,44 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { GameItemView } from './gameParser'
 
-// 基础数据模型接口
+// 图片详情接口
+export interface GameImageDetail {
+  title: string;
+  url: string;
+  type: "portrait" | "related";
+  width?: number;
+  height?: number;
+  resolution?: string;
+}
+
+// 改进的基础数据模型接口
 export interface BaseGameItem {
-  id: string             // 唯一标识
-  name: string           // 名称
-  sanitizedName: string  // 清理后的文件名
-  wikiUrl: string        // Wiki页面URL
-  avatarUrl: string      // 缩略图URL
-  hiresImageUrl: string  // 高清图URL
-  type: string           // 类型标识(如角色、道具、武器等)
-  rarity: string         // 稀有度
-  category: string       // 分类(如阵营、系列等)
-  gameId: string         // 关联的游戏ID
-  properties: Record<string, any> // 游戏特有的属性
+  // 基础标识信息
+  id: string;                   // 唯一标识
+  gameId: string;               // 关联的游戏ID
+  name: string;                 // 名称
+  sanitizedName: string;        // 清理后的文件名
+
+  // 资源链接
+  wikiUrl: string;              // Wiki页面URL
+  avatarUrl: string;            // 缩略图URL
+  hiresImageUrl?: string;       // 高清图URL (可选)
+
+  // 分类信息
+  type: string;                 // 类型标识(如角色、道具、武器等)
+  rarity: string;               // 稀有度
+  category: string;             // 分类(如阵营、系列等)
+
+  // 详情数据
+  detailImages?: GameImageDetail[]; // 详情图片列表
+  detailFetched?: boolean;         // 是否已获取详情
+
+  // 游戏特有扩展属性
+  properties: {
+    roleAndType?: string[];      // 角色类型(用于舰船)
+    [key: string]: any;          // 可扩展的其他属性
+  };
 }
 
 // 下载状态类型
@@ -185,93 +210,5 @@ export const useGameStore = defineStore('gameData', () => {
     clearDownloads,
     getFileExtension,
     sanitizePathSegment
-  }
-})
-
-// 为了兼容现有代码，保留旧的ships存储但使用新的gameStore
-export interface ShipData {
-  name: string
-  sanitizedName: string
-  wikiUrl: string
-  avatarUrl: string
-  hiresAvatarUrl: string
-  roleAndType: string[]
-  rarity: string
-  faction: string
-}
-
-export const useShipStore = defineStore('ships', () => {
-  const gameStore = useGameStore()
-
-  const ships = computed(() => {
-    if (gameStore.currentGameId === 'blhx') {
-      // 将通用格式转换为ShipData格式
-      return gameStore.items.map(item => ({
-        name: item.name,
-        sanitizedName: item.sanitizedName,
-        wikiUrl: item.wikiUrl,
-        avatarUrl: item.avatarUrl,
-        hiresAvatarUrl: item.hiresImageUrl,
-        roleAndType: item.properties.roleAndType || [],
-        rarity: item.rarity,
-        faction: item.category
-      }))
-    }
-    return []
-  })
-
-  return {
-    // 暴露原始gameStore的全部属性和方法，使其与旧代码兼容
-    ships,
-    parsedPageUrl: gameStore.parsedPageUrl,
-    isAnalyzing: gameStore.isAnalyzing,
-    downloads: gameStore.downloads,
-    statusMessage: gameStore.statusMessage,
-    setShips: (newShips: ShipData[]) => {
-      // 转换ShipData格式到通用BaseGameItem格式
-      const items: BaseGameItem[] = newShips.map(ship => ({
-        id: ship.sanitizedName,
-        name: ship.name,
-        sanitizedName: ship.sanitizedName,
-        wikiUrl: ship.wikiUrl,
-        avatarUrl: ship.avatarUrl,
-        hiresImageUrl: ship.hiresAvatarUrl,
-        type: '舰船',
-        rarity: ship.rarity,
-        category: ship.faction,
-        gameId: 'blhx',
-        properties: {
-          roleAndType: ship.roleAndType
-        }
-      }))
-      gameStore.setGameItems(items)
-    },
-    startAnalyzing: gameStore.startAnalyzing,
-    finishAnalyzing: gameStore.finishAnalyzing,
-    addDownloadTask: (ship: ShipData) => {
-      const item: BaseGameItem = {
-        id: ship.sanitizedName,
-        name: ship.name,
-        sanitizedName: ship.sanitizedName,
-        wikiUrl: ship.wikiUrl,
-        avatarUrl: ship.avatarUrl,
-        hiresImageUrl: ship.hiresAvatarUrl,
-        type: '舰船',
-        rarity: ship.rarity,
-        category: ship.faction,
-        gameId: 'blhx',
-        properties: {
-          roleAndType: ship.roleAndType
-        }
-      }
-      gameStore.addDownloadTask(item)
-    },
-    updateDownloadStatus: (shipName: string, status: DownloadStatus, message?: string) => {
-      gameStore.updateDownloadStatus(shipName, status, message)
-    },
-    getDownloadStats: gameStore.getDownloadStats,
-    clearDownloads: gameStore.clearDownloads,
-    getFileExtension: gameStore.getFileExtension,
-    sanitizePathSegment: gameStore.sanitizePathSegment
   }
 })

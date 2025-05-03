@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useShipStore } from './stores/ships'
+import { useGameParserStore } from './stores/gameParser'
 import { useDownloadStore } from './stores/download'
 
 // 导入组件
@@ -12,7 +12,7 @@ import DownloadControl from './components/ship/DownloadControl.vue'
 import DownloadStatus from './components/ship/DownloadStatus.vue'
 
 // 使用各状态存储
-const shipStore = useShipStore()
+const gameParserStore = useGameParserStore()
 const downloadStore = useDownloadStore()
 
 // 页面加载时
@@ -33,11 +33,11 @@ onMounted(() => {
           <ParseControl />
 
           <!-- 舰船列表组件 -->
-          <ShipList v-if="shipStore.ships.length > 0" />
+          <ShipList v-if="gameParserStore.ships.length > 0" />
 
           <!-- 下载控制组件 -->
           <DownloadControl
-            v-if="shipStore.ships.length > 0"
+            v-if="gameParserStore.ships.length > 0"
             v-model:limit="downloadStore.downloadLimit"
             v-model:folder="downloadStore.downloadFolder"
             v-model:include-detail-images="downloadStore.includeDetailImages"
@@ -48,7 +48,7 @@ onMounted(() => {
 
           <!-- 下载状态组件 -->
           <DownloadStatus
-            v-if="shipStore.downloads.length > 0"
+            v-if="gameParserStore.downloads.length > 0"
             @retry="downloadStore.retryDownload"
           />
         </a-space>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, defineProps, defineEmits, watch } from 'vue'
-import { useShipStore } from '../../stores/ships'
+import { useGameParserStore } from '../../stores/gameParser'
 
 defineProps<{
   limit: number
@@ -17,7 +17,7 @@ const emit = defineEmits<{
   (e: 'download'): void
 }>()
 
-const shipStore = useShipStore()
+const gameParserStore = useGameParserStore()
 
 // 是否选择全部下载的复选框
 const downloadAll = ref(false)
@@ -31,13 +31,13 @@ const updateLimit = (value: number) => {
 watch(downloadAll, (checked) => {
   if (checked) {
     // 选择全部时，设置下载数量为舰船总数
-    emit('update:limit', shipStore.ships.length)
+    emit('update:limit', gameParserStore.ships.length)
   }
 })
 </script>
 
 <template>
-  <div v-if="shipStore.ships.length > 0" class="download-control">
+  <div v-if="gameParserStore.ships.length > 0" class="download-control">
     <a-divider orientation="left">下载选项</a-divider>
 
     <a-form layout="vertical">
@@ -50,7 +50,7 @@ watch(downloadAll, (checked) => {
                 :value="limit"
                 @update:value="updateLimit"
                 :min="1"
-                :max="shipStore.ships.length"
+                :max="gameParserStore.ships.length"
                 :disabled="isDownloading || downloadAll"
                 style="width: 100px"
               />
@@ -99,7 +99,7 @@ watch(downloadAll, (checked) => {
               type="primary"
               @click="emit('download')"
               :loading="isDownloading"
-              :disabled="shipStore.ships.length === 0"
+              :disabled="gameParserStore.ships.length === 0"
               size="large"
               block
             >

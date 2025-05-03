@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { useShipStore } from './ships'
+import { useGameParserStore } from './gameParser'
 
 export const usePaginationStore = defineStore('pagination', () => {
-  const shipStore = useShipStore()
+  const gameParserStore = useGameParserStore()
 
   // 分页设置
   const pagination = ref({
@@ -17,12 +17,12 @@ export const usePaginationStore = defineStore('pagination', () => {
 
   // 过滤后的船舰数据
   const filteredShips = computed(() => {
-    if (!shipStore.ships || !searchKeyword.value.trim()) {
-      return shipStore.ships || []
+    if (!gameParserStore.ships || !searchKeyword.value.trim()) {
+      return gameParserStore.ships || []
     }
 
     const keyword = searchKeyword.value.toLowerCase().trim()
-    return shipStore.ships.filter(ship =>
+    return gameParserStore.ships.filter(ship =>
       ship.name.toLowerCase().includes(keyword) ||
       ship.faction.toLowerCase().includes(keyword) ||
       ship.rarity.toLowerCase().includes(keyword)

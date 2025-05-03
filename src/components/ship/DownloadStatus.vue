@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useShipStore } from '../../stores/ships'
+import { useGameParserStore } from '../../stores/gameParser'
 
-const shipStore = useShipStore()
+const gameParserStore = useGameParserStore()
 
 // 添加过滤状态
 const statusFilter = ref('all') // 默认显示全部
@@ -27,15 +27,15 @@ const columns = [
 
 // 处理状态数据，添加过滤功能
 const downloadData = computed(() => {
-  let data = shipStore.downloads.map(item => ({
-    key: item.ship.sanitizedName,
-    name: item.ship.name,
+  let data = gameParserStore.downloads.map(item => ({
+    key: item.item.sanitizedName,
+    name: item.item.name,
     status: item.status === 'pending' ? '等待中' :
             item.status === 'downloading' ? '下载中...' :
             item.status === 'success' ? '成功' : '失败',
     message: item.message || '',
     statusType: item.status,
-    shipData: item.ship
+    itemData: item.item // 更好的命名，避免混淆
   }))
 
   // 根据过滤条件筛选
@@ -48,7 +48,7 @@ const downloadData = computed(() => {
 
 // 获取状态统计数据
 const statusStats = computed(() => {
-  const stats = shipStore.getDownloadStats()
+  const stats = gameParserStore.getDownloadStats()
   return [
     { type: 'all', count: stats.total, label: '全部' },
     { type: 'success', count: stats.success, label: '成功' },
@@ -60,7 +60,7 @@ const statusStats = computed(() => {
 </script>
 
 <template>
-  <div v-if="shipStore.downloads.length > 0" style="margin-top: 16px">
+  <div v-if="gameParserStore.downloads.length > 0" style="margin-top: 16px">
     <a-typography-title :level="4">下载状态</a-typography-title>
 
     <!-- 添加过滤器 -->
